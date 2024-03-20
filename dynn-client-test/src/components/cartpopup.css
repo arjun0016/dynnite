@@ -1,0 +1,42 @@
+
+.cartPopup {
+    position: fixed;
+    z-index: 99999999;
+    bottom: 0px; 
+    right: 0px; 
+    background-color: #fff;
+    height: 80px; 
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 10px 0px 10px 25px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .cartDetails_popup{
+    display: flex;
+    width: 200px;
+  }
+  
+  .itemCount_popup {
+    font-size: 18px;
+  }
+  
+  .goToCartButton {
+    text-decoration: none;
+    padding: 8px 12px;
+    background-color: #e3002b; /* Add a background color for the button */
+    color: #fff;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+  }
+  
+  .goToCartButton:hover {
+    background-color: #e91e63; /* Change the button color on hover if you like */
+  }
+  

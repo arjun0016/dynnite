@@ -1,0 +1,144 @@
+.root {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .navy {
+    background-color: #fff;
+  }
+  
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .main {
+    flex: 1;
+    overflow: auto;
+    flex-direction: column;
+    display: flex;
+    color: #ffffff;
+  }
+  
+  .largeLogo {
+    height: 100px;
+  }
+  
+  .logo {
+    height: 50px;
+  }
+  
+  .content {
+    margin-bottom: 20px;
+  }
+
+  .complete_parent{
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+  }
+
+  .title_container{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    line-height: 48px;
+    margin-top: 130px;
+  }
+
+  .title_complete{
+    font-size: 50px;
+  }
+
+  .order_placed{
+    color: black;
+    width: 290px;
+    line-height: 45px;
+    font-size: 35px;
+    text-align: center;
+  }
+  
+  .order_no{
+    color: black;
+    text-align: center;
+    border-radius: 10px;
+    width: 180px;
+    height: 50px;
+    padding: 0 10px;
+    font-size: 13px;
+    background-color: rgb(235, 232, 232);
+  }
+
+  .complete_img{
+    width: 150px;
+    height: 150px;
+  }
+  
+  .card {
+    width: 200px;
+  }
+  
+  .card_review {
+    width: 80%;
+    margin-left: 40px;
+    margin-top: 12px;
+  }
+  
+  .media {
+    width: 100%;
+    height: auto;
+  }
+  
+  .large-button {
+    width: 250px;
+  }
+
+  .complete_button{
+    width: 180px;
+    height: 50px !important;
+    border-radius: 10px;
+    height: 40px;
+    background-color: #e3002b;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .largeInput {
+    width: 60px !important;
+    padding: 0 !important;
+    font-size: 35px !important;
+    text-align: center!important;
+  }
+  
+  .bordered {
+    border-width: 2px;
+    padding: 1px;
+    margin: 5px;
+    border-style: solid;
+  }
+  
+  .row {
+    display: flex;
+    padding-bottom: 3px;
+  }
+  
+  .around {
+    justify-content: space-around;
+  }
+  
+  .between {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .column {
+    flex-direction: column;
+  }
+  

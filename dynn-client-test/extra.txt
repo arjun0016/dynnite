@@ -1,0 +1,1868 @@
+home.js
+
+import React from 'react';
+import '../components/home.css';
+import { Link } from 'react-router-dom';
+
+export default function HomeScreen() {
+  return (
+    <div className='home_screen'>
+      <h1 className='logo'>P</h1>
+      <div className='content'>
+        <h2 className='title'>Welcome to<br /><span className='highlight'>PatioTime</span> Cafe</h2>
+        <p className='description'>We serve food, harmony, and laughter. Making delicious food and providing a wonderful<br /> eating experience since 1980.</p>
+        <div className='button_container'>
+          <Link to="/choose" className='menu_link'>View Menu</Link>
+        </div>
+      </div>
+
+      <div className='menu_button_topright'>
+        <Link to="/choose">
+          <button>View Menu</button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+choose.js
+
+import React, { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBucket } from '@fortawesome/free-solid-svg-icons';
+import Logo from '../components/Logo';
+import { Store } from './Store';
+import { setOrderType } from '../actions';
+import '../components/choose.css';
+
+export default function ChooseScreen() {
+  const { dispatch } = useContext(Store);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Define the chooseHandler function within useEffect
+    const chooseHandler = (orderType) => {
+      setOrderType(dispatch, orderType);
+      navigate('/order');
+    };
+
+    // Default to "Eat in" option and navigate to the "Order" screen
+    chooseHandler('Eat in');
+  }, [dispatch, navigate]);
+
+  return (
+    <div>
+      <div className="navbar">
+        <div className="navbar_left">
+          <span className="logo_text">DYNNITE</span>
+        </div>
+        <div className="navbar_right">
+          <FontAwesomeIcon icon={faBucket} />
+        </div>
+      </div>
+      <div className="choose_screen">
+        <div className="main">
+          <div className="center">
+            <Logo className="logo" />
+          </div>
+          <h3 className="center">Where will you be eating today?</h3>
+          {/* No need to render the cards */}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+review.js
+
+import { Box } from '@mui/system';
+import React, { useContext, useState } from 'react';
+import { useStyles } from '../styles';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { Button, Card, CardActionArea, CardContent } from '@mui/material';
+import { Store } from './Store';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import '../components/review.css';
+import { useNavigate } from 'react-router-dom';
+import { products } from '../data';
+import { removeFromOrder } from '../actions';
+
+export let totalValue = 0;
+
+export default function ReviewScreen(props) {
+  const navigate = useNavigate();
+  const [totalValue, setTotalValue] = useState(0);
+
+  const { state, dispatch } = useContext(Store);
+  const {
+    orderItems,
+    itemsCount,
+    totalPrice,
+    orderType,
+  } = state.order;
+
+  const [quantity, setQuantity] = useState(orderItems.map(() => 1));
+
+  const handleAddClick = (orderItem, index) => {
+    const updatedQuantity = [...quantity];
+    updatedQuantity[index] += 1;
+    setQuantity(updatedQuantity);
+
+    const updatedOrderItems = [...orderItems];
+    updatedOrderItems[index].quantity += 1;
+    dispatch({ type: 'SET_ORDER_ITEMS', payload: updatedOrderItems });
+  };
+
+  const handleRemoveClick = (orderItem, index) => {
+    if (orderItem.quantity === 1) {
+      return;
+    }
+
+    const updatedQuantity = [...quantity];
+    updatedQuantity[index] -= 1;
+    setQuantity(updatedQuantity);
+
+    const updatedOrderItems = [...orderItems];
+    updatedOrderItems[index].quantity -= 1;
+    dispatch({ type: 'SET_ORDER_ITEMS', payload: updatedOrderItems });
+  };
+
+  const handleRemoveProduct = (index) => {
+    const updatedOrderItems = [...orderItems];
+    updatedOrderItems.splice(index, 1);
+    dispatch({ type: 'SET_ORDER_ITEMS', payload: updatedOrderItems });
+  };
+
+  const proceedToCheckoutHandler = () => {
+    navigate('/select-payment', { state: { price: total } });
+  };
+
+
+  const styles = useStyles();
+
+  const subtotal = orderItems.reduce((sum, orderItem, index) => {
+    const itemTotalPrice = orderItem.price * orderItem.quantity;
+    return sum + itemTotalPrice;
+  }, 0);
+
+  const taxPrice = subtotal * 0.05;
+
+  const total = subtotal + taxPrice;
+
+  useState(() => {
+    setTotalValue(total.toFixed(2));
+  }, [total]);
+
+  return (
+    <div className='root'>
+      <div className="navbar">
+        <div className="navbar-left">
+          <h2>DYNNITE</h2>
+        </div>
+        <div className="navbar-right">
+          <FontAwesomeIcon icon={faShoppingCart} className="cart-icon" />
+        </div>
+      </div>
+      <div className='check-parent'>
+        <div className='checkout-box'>
+          {orderItems.map((orderItem, index) => (
+            <div item md={12} key={orderItem.name}>
+              <div className='card_left'>
+                <div>
+                  <div className='xyz'>
+                    <div className='review-flex'>
+                      {orderItem.image && (
+                        <img
+                          className="checkout-img"
+                          src={`data:image/jpeg;base64,${orderItem.image}`}
+                          alt={orderItem.name}
+                        />
+                      )}
+
+                      <div className='item-name'>
+                        <p>{orderItem.name}</p>
+                        <button
+                        className='remove-btn'
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <div className='input-parent'>
+                      <div className='quantity-buttons'>
+                        <button
+                          className='add_dec_btn'
+                          onClick={() => handleRemoveClick(orderItem, index)}
+                          disabled={orderItem.quantity === 1}
+                        >
+                          <RemoveIcon />
+                        </button>
+
+                        <input
+                          type="number"
+                          className="largeNumber"
+                          min={1}
+                          value={orderItem.quantity}
+                          onChange={(e) => {
+                            const updatedQuantity = parseInt(e.target.value);
+                            if (!isNaN(updatedQuantity)) {
+                              const updatedQuantityArray = [...quantity];
+                              updatedQuantityArray[index] = updatedQuantity;
+                              setQuantity(updatedQuantityArray);
+
+                              const updatedOrderItems = [...orderItems];
+                              updatedOrderItems[index].quantity = updatedQuantity;
+                              dispatch({ type: 'SET_ORDER_ITEMS', payload: updatedOrderItems });
+                            }
+                          }}
+                        />
+                        <button
+                          className='add_dec_btn'
+                          onClick={() => handleAddClick(orderItem, index)}
+                        >
+                          <AddIcon />
+                        </button>
+                      </div>
+                      <p className='price'>₹{(orderItem.price * orderItem.quantity).toFixed(2)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className='summary_box'>
+            <div>
+              <div className='summary_inside'>
+                <h3 className='item_count'>{itemsCount} ITEM</h3>
+                <div className='summary_contents'>
+                  <p>Order Type:</p><p>{orderType}</p>
+                </div>
+                <div className='summary_contents'>
+                  <p>Subtotal:</p><p>₹{subtotal.toFixed(2)}</p>
+                </div>
+                <div className='summary_contents'>
+                  <p>GST:</p><p>₹{taxPrice.toFixed(2)}</p>
+                </div>
+                <div className='summary_contents'>
+                  <p>Total:</p><p>₹{total.toFixed(2)}</p>
+                </div>
+                <Box className='row around'>
+                  <Button
+                    onClick={() => {
+                      navigate(`/order`);
+                    }}
+                    className='largeButton'
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={proceedToCheckoutHandler}
+                    disabled={orderItems.length === 0}
+                    className='largeButton'
+                  >
+                    Proceed To Checkout
+                  </Button>
+                </Box>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+order.js
+
+import { Box } from '@mui/system';
+import React, { useContext, useEffect, useState } from 'react';
+import CartPopup  from '../components/CartPopup'
+import { useStyles } from '../styles';
+import {
+  CircularProgress,
+  Alert,
+  Typography,
+  Dialog,
+  DialogTitle,
+  Button,
+  TextField,
+} from '@mui/material';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import { addToOrder, listProducts, removeFromOrder } from '../actions';
+import { Store } from './Store';
+import '../components/order.css';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart, faSearch } from '@fortawesome/free-solid-svg-icons';
+
+function OrderScreen(props) {
+  const styles = useStyles();
+  const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
+  const [product, setProduct] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const closeHandler = () => {
+    setIsOpen(false);
+  };
+
+  const productClickHandler = (p) => {
+    setProduct(p);
+    setIsOpen(true);
+  };
+
+  const addToOrderHandler = () => {
+    addToOrder(dispatch, { ...product, quantity });
+    setIsOpen(false);
+  };
+
+  const addToCartHandler = (product) => {
+    addToOrder(dispatch, { ...product, quantity: 1 });
+    setIsOpen(false);
+  };
+
+  const cancelOrRemoveFromOrder = () => {
+    removeFromOrder(dispatch, product);
+    setIsOpen(false);
+  };
+
+  const { state, dispatch } = useContext(Store);
+  const {
+    products,
+    loading: loadingProducts,
+    error: errorProducts,
+  } = state.productList;
+
+  const filteredProducts = products
+    ? products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : [];
+
+  useEffect(() => {
+    listProducts(dispatch);
+  }, [dispatch]);
+
+  const previewOrderHandler = () => {
+    if (orderItems.length > 0) {
+      navigate(`/review`);
+    }
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const { orderItems, itemsCount, totalPrice } = state.order;
+
+  return (
+    <div className={styles.root}>
+      <Dialog className="dialog" maxWidth="sm" fullWidth={true} open={isOpen} onClose={closeHandler}>
+        <DialogTitle className="dialogTitle">Add {product.name}</DialogTitle>
+        <p className='food-desc'>{product.desc}</p>
+        <Box className="row">
+          <Button
+            disabled={quantity === 1}
+            onClick={(e) => quantity > 1 && setQuantity(quantity - 1)}
+          >
+            <RemoveIcon />
+          </Button>
+          <TextField
+            min={1}
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+          <Button onClick={(e) => setQuantity(quantity + 1)}>
+            <AddIcon />
+          </Button>
+        </Box>
+        <Box className="row around">
+          <Button
+            onClick={cancelOrRemoveFromOrder}
+            className="largeButton dialogButton"
+          >
+            {orderItems.find((item) => item.name === product.name) ? 'Remove from Order' : 'Cancel'}
+          </Button>
+          <Button
+            onClick={addToOrderHandler}
+            className="largeButton dialogButton"
+          >
+            Add to Order
+          </Button>
+        </Box>
+      </Dialog>
+
+      <Box className="navbar">
+        <h2 className="navbarTitle_order">DYNNITE</h2>
+        <div className="searchBar">
+          <input
+            type="text"
+            placeholder="Search, Order, Enjoy"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
+          <FontAwesomeIcon icon={faSearch} className="searchIcon" />
+        </div>
+       
+      </Box>
+      <Box className=''>
+        <Box className="order_list" >
+          {loadingProducts ? (
+            <CircularProgress />
+          ) : errorProducts ? (
+            <Alert severity="error">{errorProducts}</Alert>
+          ) : (
+            filteredProducts.map((product) => (
+              <div className='card-container' item key={product._id} >
+                <div className="order_card" >
+                  <div className='card-clickable' onClick={() => productClickHandler(product)}>
+                    {product.image && (
+                      <img
+                        className="menu-img"
+                        src={`data:image/jpeg;base64,${product.image}`}
+                        alt={product.name}
+                      />
+                    )}
+                  </div>
+                  <div className='product-parent'>
+                    <div>
+                      <div className='product-details'>
+                        <span className="order_card_name">{product.name}</span>
+                        <span className='order_card_category'>{product.category}</span>
+                        <div className='order-card-footer'>
+                          <span className='order-time'>{product.time} MINS</span>
+                          <span className='order-price' variant="body2" color="textPrimary" component="p">
+                            ₹ {product.price}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Box className="addButtonWrapper">
+                      <Button
+                        className="addButton"
+                        onClick={() => addToCartHandler(product)}
+                      >
+                        <span>Add to Cart</span><i class="fa-solid fa-utensils"></i>
+                      </Button>
+                    </Box>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </Box>
+      </Box>
+      {itemsCount > 0 && <CartPopup itemsCount={itemsCount} totalPrice={totalPrice} />}
+    </div>
+  );
+}
+
+export default OrderScreen;
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+kitchen.js
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Table, TableHead, TableBody, TableRow, TableCell, Button } from '@mui/material';
+import '../components/kitchen.css';
+
+export default function KitchenScreen() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get('/api/orders');
+      setOrders(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError('Error fetching orders');
+      setLoading(false);
+    }
+  };
+
+  const setOrderStateHandler = async (orderId, action) => {
+    try {
+      let updatedField = '';
+      if (action === 'serve') {
+        updatedField = 'isServed';
+      }
+
+      await axios.put(`/api/orders/${orderId}`, {
+        [updatedField]: true,
+      });
+
+      // Update the order locally
+      const updatedOrders = orders.map((o) => {
+        if (o._id === orderId) {
+          return { ...o, [updatedField]: true };
+        }
+        return o;
+      });
+      setOrders(updatedOrders);
+    } catch (err) {
+      console.error('Error updating order state:', err);
+      alert(err.message);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  return (
+    <div className='kitchen_contents'>
+      <h2 className='kitchen_heading'>Kitchen Screen</h2>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Order Number</TableCell>
+            <TableCell>Table Number</TableCell>
+            {/* <TableCell>Order Type</TableCell> */}
+            <TableCell>Item Name</TableCell>
+            <TableCell>Item Quantity</TableCell>
+            <TableCell>Served</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {orders.map((order) => (
+            <TableRow key={order._id}>
+              <TableCell>{order.number}</TableCell>
+              <TableCell>{order.tableno}</TableCell>
+              {/* <TableCell>{order.orderType}</TableCell> */}
+              <TableCell>
+                {order.orderItems.map((item) => (
+                  <div key={item._id}>{item.name}</div>
+                ))}
+              </TableCell>
+              <TableCell>
+                {order.orderItems.map((item) => (
+                  <div key={item._id}>{item.quantity}</div>
+                ))}
+              </TableCell>
+              <TableCell>{order.isServed ? 'Yes' : 'No'}</TableCell>
+              <TableCell>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setOrderStateHandler(order._id, 'serve')}
+                  disabled={order.isServed}
+                >
+                  Serve
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+store.js
+
+import { React, createContext, useReducer } from 'react';
+import { CATEGORY_LIST_FAIL, CATEGORY_LIST_REQUEST, CATEGORY_LIST_SUCCESS, ORDER_SET_TYPE, PRODUCT_LIST_REQUEST, PRODUCT_LIST_SUCCESS, PRODUCT_LIST_FAIL, ORDER_REMOVE_ITEM, ORDER_CLEAR, ORDER_ADD_ITEM, ORDER_SET_PAYMENT_TYPE, ORDER_CREATE_REQUEST, ORDER_CREATE_SUCCESS, ORDER_CREATE_FAIL, ORDER_LIST_REQUEST, ORDER_LIST_SUCCESS, ORDER_LIST_FAIL } from '../Constants';
+
+export const Store = createContext();
+
+const initialState = {
+  categoryList: { loading: true },
+  productList: { loading: true },
+  order: {
+    orderType: 'Eat in',
+    orderItems: [],
+    paymentType: 'Pay here',
+  },
+  orderCreate: { loading: true },
+
+  orderList: { loading: true },
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case CATEGORY_LIST_REQUEST:
+      return { ...state, categoryList: { loading: true } };
+    case CATEGORY_LIST_SUCCESS:
+      return {
+        ...state,
+        categoryList: { loading: false, categories: action.payload },
+      };
+    case CATEGORY_LIST_FAIL:
+      return {
+        ...state,
+        categoryList: { loading: false, error: action.payload },
+      };
+
+    case PRODUCT_LIST_REQUEST:
+      return { ...state, 
+        productList: { loading: true } };
+    case PRODUCT_LIST_SUCCESS:
+      return {
+        ...state,
+        productList: { loading: false, products: action.payload },
+      };
+    case PRODUCT_LIST_FAIL:
+      return {
+        ...state,
+        productList: { loading: false, error: action.payload },
+      };
+
+    case ORDER_SET_TYPE:
+      return {
+        ...state, order: { ...state.order, orderType: action.payload },
+      };
+      case ORDER_SET_PAYMENT_TYPE:
+        return{
+          ...state,
+          order: {...state.order, paymentType: action.payload},
+        };
+      case ORDER_ADD_ITEM: {
+        // const { total } = action.payload;
+        const item = action.payload;
+        const existItem = state.order.orderItems.find((x) => x.name === item.name);
+        const orderItems = existItem
+          ? state.order.orderItems.map((x) => (x.name === existItem.name ? item : x))
+          : [...state.order.orderItems, item];
+      
+        const itemsCount = orderItems.reduce((a, c) => a + c.quantity, 0);
+        const itemsPrice = orderItems.reduce((a, c) => a + c.quantity * c.price, 0);
+        const taxPrice = Math.round(0.05 * itemsPrice * 100) / 100;
+
+        const totalPrice = Math.round((itemsPrice + taxPrice) * 100) / 100;
+
+        return {
+          ...state,
+          order: {
+            ...state.order,
+            orderItems,
+            taxPrice,
+            totalPrice,
+            itemsCount,
+          },
+        };
+      }
+      
+      case ORDER_CLEAR:
+        return{
+          ...state,
+          order: {
+            orderItems: [],
+            taxPrice: 0,
+            totalPrice: 0,
+            itemsCount: 0,
+          },
+        }
+
+        case ORDER_REMOVE_ITEM: {
+          const orderItems = state.order.orderItems.filter(
+            (x) => x.name !== action.payload.name
+          );
+          const itemsCount = orderItems.reduce((a, c) => a + c.quantity, 0);
+          const itemsPrice = orderItems.reduce(
+            (a, c) => a + c.quantity * c.price,
+            0
+          );
+          const taxPrice = Math.round(0.05 * itemsPrice * 100) / 100;
+
+          const totalPrice = Math.round((itemsPrice + taxPrice) * 100) / 100;
+          // const totalPrice = Math.round((itemsPrice + taxPrice) * 100) / 100;
+        
+          return {
+            ...state,
+            order: {
+              ...state.order,
+              orderItems,
+              taxPrice,
+              totalPrice,
+              itemsCount,
+            },
+          };
+        }
+
+        case ORDER_CREATE_REQUEST:
+          return { ...state, orderCreate: { loading: true } };
+          case ORDER_CREATE_SUCCESS:
+            return{
+              ...state,
+              orderCreate: { loading: false, newOrder: action.payload },
+            };
+            case ORDER_CREATE_FAIL:
+              return {
+                ...state,
+                orderCreate: { loading: false, error: action.payload },
+              };
+            case ORDER_LIST_REQUEST:
+            return { ...state, orderList: { loading: true } };
+            case ORDER_LIST_SUCCESS:
+              return{
+                ...state,
+                orderList: { loading: false, orders: action.payload},
+              };
+            case ORDER_LIST_FAIL:
+              return{
+                ...state,
+                orderList: { loading: false, error: action.payload },
+              };  
+    default:
+       return state;
+  }
+}
+
+export function StoreProvider(props) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const value = { state, dispatch };
+
+  return <Store.Provider value={value}>{props.children}</Store.Provider>;
+}
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+admin.js
+
+import React, { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../components/admin.css';
+import axios from 'axios';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Button, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Modal, TextField } from '@mui/material';
+
+export default function AdminScreen() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedSection, setSelectedSection] = useState(null);
+  // const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    if (username === 'admin' && password === 'password') {
+      setIsLoggedIn(true);
+    } else {
+      alert('Invalid username or password');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUsername('');
+    setPassword('');
+    setSelectedSection(null);
+  };
+
+  const handleSectionClick = (section) => {
+    if (section === 'dashboard') {
+      setSelectedSection(null);
+    } else {
+      setSelectedSection(section);
+    }
+  };
+
+  if (isLoggedIn) {
+    return (
+      <div>
+        <nav className="navbar-admin">
+          <div className="navbar-admin-left">
+            <h3 className="admin-head">ADMIN</h3>
+          </div>
+          <div className="navbar-admin-right">
+            <button className="btn-logout" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </nav>
+        <div className="dashboard-container">
+          <div className="sidebar">
+            <h3 className="options" onClick={() => handleSectionClick('dashboard')}>Dashboard</h3>
+            <div className='dash-options'>
+              <h3 onClick={() => handleSectionClick('orders')}>Active Orders</h3>
+              <h3 onClick={() => handleSectionClick('previousOrders')}>Previous Orders</h3>
+              <h3 onClick={() => handleSectionClick('foods')}>Foods</h3>
+            </div>
+          </div>
+          <div className="main-content">
+            {selectedSection === 'orders' && <OrdersSection />}
+            {selectedSection === 'previousOrders' && <PreviousOrdersSection />}
+            {selectedSection === 'foods' && <FoodsSection />}
+            {selectedSection === null && <WelcomeMessage />}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="login-container">
+      <h2>Login to access Admin Screen</h2>
+      <form onSubmit={handleLogin}>
+        <label>
+          Username:
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </label>
+        <br />
+        <label>
+          Password:
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+        <br />
+        <button className="btn-logout" type="submit">
+          Login
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function WelcomeMessage() {
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [todaysOrders, setTodaysOrders] = useState(0);
+  const [orderChartData, setOrderChartData] = useState([]);
+
+  useEffect(() => {
+    fetchOrderData();
+  }, []);
+
+  const fetchOrderData = async () => {
+    try {
+      const response = await axios.get('/api/all-orders');
+      const orderData = response.data;
+
+      // Calculate the total number of orders
+      const totalOrdersCount = orderData.length;
+      setTotalOrders(totalOrdersCount);
+
+      // Calculate the number of today's orders
+      const today = new Date().toLocaleDateString();
+      const todayOrdersCount = orderData.filter(
+        (order) => new Date(order.createdAt).toLocaleDateString() === today
+      ).length;
+      setTodaysOrders(todayOrdersCount);
+
+      // Prepare the chart data
+      const ordersByDate = orderData.reduce((accumulator, order) => {
+        const orderDate = new Date(order.createdAt).toLocaleDateString();
+        accumulator[orderDate] = (accumulator[orderDate] || 0) + 1;
+        return accumulator;
+      }, {});
+      const chartData = Object.entries(ordersByDate).map(([date, count]) => ({
+        date,
+        count,
+      }));
+      setOrderChartData(chartData);
+    } catch (error) {
+      console.error('Error fetching order data:', error);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Welcome to Admin Screen!</h2>
+      <div className='admin-box'>
+        <p className='total-order-box'>Total Orders: {totalOrders}</p>
+        <p className='today-order-box'>Today's Orders: {todaysOrders}</p>
+      </div>
+      <div className='chart-container'>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={orderChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="count" stroke="#8884d8" fill="#8884d8" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+function OrdersSection() {
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    fetchOrders();
+
+    // Fetch orders every 5 seconds (adjust the interval as needed)
+    const intervalId = setInterval(fetchOrders, 2000);
+
+    // Clean up interval on component unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get('/api/orders');
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  const calculateSubtotal = (order) => {
+    return order.orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  };
+
+  useEffect(() => {
+    const updateOrderStatus = (updatedOrder) => {
+      setOrders((prevOrders) => {
+        const updatedOrders = prevOrders.map((order) => {
+          if (order._id === updatedOrder._id) {
+            return updatedOrder;
+          }
+          return order;
+        });
+        return updatedOrders;
+      });
+    };
+
+    const subscribeToOrderStatusUpdates = () => {
+      // Establish a WebSocket connection for real-time updates
+      const socket = new WebSocket('ws://localhost:8000/api/orders');
+
+      socket.onmessage = (event) => {
+        const updatedOrder = JSON.parse(event.data);
+        updateOrderStatus(updatedOrder);
+      };
+
+      socket.onclose = () => {
+        // Reconnect if the WebSocket connection is closed
+        setTimeout(subscribeToOrderStatusUpdates, 2000);
+      };
+    };
+
+    subscribeToOrderStatusUpdates();
+  }, []);
+
+  const setOrderStateHandler = async (orderId, action) => {
+    try {
+      if (action === 'deliver') {
+        await axios.put(`/api/orders/${orderId}`, {
+          isDelivered: true,
+        });
+
+        // Update the order locally
+        const updatedOrders = orders.map((o) => {
+          if (o._id === orderId) {
+            return { ...o, isDelivered: true };
+          }
+          return o;
+        });
+        setOrders(updatedOrders);
+      } else if (action === 'cancel') {
+        // Implement cancel functionality if needed
+      }
+    } catch (err) {
+      console.error('Error updating order state:', err);
+      alert(err.message);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Orders Section</h2>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Order Number</TableCell>
+            <TableCell>Items</TableCell>
+            <TableCell>Price</TableCell>
+            <TableCell>Subtotal</TableCell>
+            <TableCell>Served</TableCell>
+            <TableCell>Delivered</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {orders.map((order) => (
+            <TableRow key={order._id}>
+              <TableCell>{order.number}</TableCell>
+              <TableCell>
+                {order.orderItems.map((item) => (
+                  <span key={item._id}>{item.name}<br /></span>
+                ))}
+              </TableCell>
+              <TableCell>
+                {order.orderItems.map((item) => (
+                  <span key={item._id}>{item.price * item.quantity}<br /></span>
+                ))}
+              </TableCell>
+              <TableCell>{calculateSubtotal(order)}</TableCell>
+              <TableCell>{order.isServed ? 'Yes' : 'No'}</TableCell>
+              <TableCell>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setOrderStateHandler(order._id, 'deliver')}
+                  disabled={!order.isServed}
+                >
+                  Deliver
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function PreviousOrdersSection() {
+  const [previousOrders, setPreviousOrders] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+
+  useEffect(() => {
+    fetchPreviousOrders();
+
+    // Fetch previous orders every 5 seconds (adjust the interval as needed)
+    const intervalId = setInterval(fetchPreviousOrders, 2000);
+
+    // Clean up interval on component unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const filtered = previousOrders.filter(
+        (order) => new Date(order.createdAt).toDateString() === selectedDate.toDateString()
+      );
+      setFilteredOrders(filtered);
+    } else {
+      setFilteredOrders(previousOrders);
+    }
+  }, [selectedDate, previousOrders]);
+
+  const fetchPreviousOrders = async () => {
+    try {
+      const response = await axios.get('/api/all-orders');
+      setPreviousOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching previous orders:', error);
+    }
+  };
+
+  const calculateSubtotal = (order) => {
+    return order.orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  const handleShowAllOrders = () => {
+    setSelectedDate(null);
+  };
+
+  const handleShowTodayOrders = () => {
+    const today = new Date().toDateString();
+    setSelectedDate(new Date());
+    const filtered = previousOrders.filter(
+      (order) => new Date(order.createdAt).toDateString() === today
+    );
+    setFilteredOrders(filtered);
+  };
+
+  return (
+    <div>
+      <h2>Previous Orders Section</h2>
+      <div className="date-picker-container">
+        <DatePicker
+          selected={selectedDate}
+          onChange={handleDateChange}
+          className="date-picker-input"
+          placeholderText='Select Date'
+        />
+      </div>
+      <div className="order-buttons">
+        <Button onClick={handleShowAllOrders}>All Orders</Button>
+        <Button onClick={handleShowTodayOrders}>Today's Orders</Button>
+      </div>
+      <div className="tableContainer">
+        <Table className="table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Order Number</TableCell>
+              <TableCell>Items</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Subtotal</TableCell>
+              <TableCell>Order Date</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredOrders.map((order) => (
+              <TableRow key={order._id}>
+                <TableCell>{order.number}</TableCell>
+                <TableCell>
+                  {order.orderItems.map((item) => (
+                    <span key={item._id}>{item.name}<br /></span>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {order.orderItems.map((item) => (
+                    <span key={item._id}>{item.price * item.quantity}<br /></span>
+                  ))}
+                </TableCell>
+                <TableCell>{calculateSubtotal(order)}</TableCell>
+                <TableCell>{new Date(order.createdAt).toLocaleString()}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+function FoodsSection() {
+  const [products, setProducts] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [desc, setDesc] = useState('');
+  const [price, setPrice] = useState('');
+  const [image, setImage] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('/api/products');
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  const handleAddProduct = () => {
+    setSelectedProduct(null);
+    setIsModalOpen(true);
+    resetFormFields();
+  };
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+    setName(product.name);
+    setDesc(product.desc);
+    setPrice(product.price);
+    // Set image if required
+  };
+
+  const handleSaveProduct = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('desc', desc);
+      formData.append('price', price);
+      formData.append('image', image);
+
+      await axios.post('/api/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      closeModal();
+      resetFormFields();
+      fetchProducts();
+    } catch (error) {
+      console.error('Error adding product:', error);
+      // Handle the error
+    }
+  };
+
+  const handleUpdateProduct = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('desc', desc);
+      formData.append('price', price);
+      formData.append('image', image);
+
+      await axios.put(`/api/products/${selectedProduct._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      closeModal();
+      resetFormFields();
+      fetchProducts();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      // Handle the error
+    }
+  };
+
+  const handleCancel = () => {
+    closeModal();
+    resetFormFields();
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const resetFormFields = () => {
+    setName('');
+    setDesc('');
+    setPrice('');
+    setImage(null);
+  };
+
+  return (
+    <div>
+      <h2>Foods Section</h2>
+      <Button onClick={handleAddProduct}>Add Product</Button>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {products.map((product) => (
+              <TableRow key={product._id}>
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.desc}</TableCell>
+                <TableCell>{product.price}</TableCell>
+                <TableCell>
+                  <Button onClick={() => handleEditProduct(product)}>Edit</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Modal className='modal' open={isModalOpen} onClose={handleCancel}>
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>{selectedProduct ? 'Edit Product' : 'Add Product'}</h3>
+          </div>
+          <div className="modal-input">
+            <TextField
+              label="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="modal-input">
+            <TextField
+              label="Description"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            />
+          </div>
+          <div className="modal-input">
+            <TextField
+              label="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
+          <div className="modal-input">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
+          </div>
+          <div className="modal-footer">
+            {selectedProduct ? (
+              <Button onClick={handleUpdateProduct}>Update</Button>
+            ) : (
+              <Button onClick={handleSaveProduct}>Save</Button>
+            )}
+            <Button onClick={handleCancel}>Cancel</Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+select-payment.js
+
+import React, { useContext } from 'react';
+import { useLocation } from 'react-router-dom';
+// import Logo from '../components/Logo';
+import { Card, CardActionArea, CardContent, CardMedia } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { setPaymentType } from '../actions';
+import { Store } from './Store';
+import '../components/select.css';
+
+export default function SelectPaymentScreen(props) {
+  const location = useLocation();
+  const { dispatch } = useContext(Store);
+  const navigate = useNavigate();
+
+  const priceToBePaid = location.state?.price || 0;
+  const tableno = location.state?.tableno || null;
+
+  const selectHandler = (paymentType) => {
+    setPaymentType(dispatch, paymentType);
+    if (paymentType === 'Pay here') {
+      navigate('/payment', { state: { price: priceToBePaid, tableno: tableno } });
+    } else {
+      navigate('/complete', { state: { tableno: tableno } });
+    }
+  };  
+
+  return (
+    <div className="root">
+      <div className="">
+        {/* <Logo large /> */}
+        <p className="select-txt">
+          Payment
+        </p>
+      </div>
+      <div className="cards">
+        <div className="card space">
+          <CardActionArea onClick={() => selectHandler('At counter')}>
+            <div>
+              <p>
+                AT COUNTER
+              </p>
+            </div>
+            <div className="media"><img src='/images/atcounter.png'></img></div>
+          </CardActionArea>
+        </div>
+        <div className="card space">
+          <CardActionArea onClick={() => selectHandler('Pay here')}>
+            <div>
+              <p>
+                Pay Online
+              </p>
+            </div>
+            <div className="media"><img src='/images/payhere.png'></img></div>
+          </CardActionArea>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+paymentscreen.js
+
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom'; 
+
+export default function PaymentScreen() {
+  const location = useLocation();
+  const navigate = useNavigate(); 
+  const priceToBePaid = location.state?.price || 0; 
+
+ 
+  const upiId = 'qr.mazala@sib';
+  const currencyCode = 'INR';
+
+  const handlePayNow = () => {
+
+    const paymentId = Math.random().toString(36).substring(7);
+
+    const googlePayLink = `upi://pay?pa=${upiId}&pn=Your%20Merchant&am=${priceToBePaid}&cu=${currencyCode}&tid=${paymentId}`;
+
+    
+    window.location.href = googlePayLink;
+  };
+
+  useEffect(() => {
+   
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('status');
+    const paymentId = params.get('tid');
+
+    
+    if (paymentStatus === 'success') {
+  
+      console.log(`Payment with ID ${paymentId} was successful.`);
+      navigate('/complete');
+    }
+  }, [navigate]);
+
+  return (
+    <div>
+      <h2>Payment Screen</h2>
+      <p>Price to be paid: {priceToBePaid}</p>
+      <button onClick={handlePayNow}>Pay Now</button>
+    </div>
+  );
+}
+
+
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+server.js
+
+const express = require('express');
+const fetch = require('isomorphic-fetch');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const WebSocket = require('ws');
+const multer = require('multer');
+const bodyParser = require('body-parser');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
+const app = express();
+
+// Enable CORS
+app.use(cors());
+
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+dotenv.config();
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const adminSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+});
+
+const Admin = mongoose.model('Admin', adminSchema);
+
+const Product = mongoose.model(
+  'products',
+  new mongoose.Schema({
+    name: String,
+    desc: String,
+    category: String,
+    image: Buffer,
+    price: Number,
+    time: Number,
+  })
+);
+
+app.post('/api/admin/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+ 
+    const admin = await Admin.findOne({ username });
+
+    if (!admin) {
+      return res.status(401).send({ message: 'Invalid username or password' });
+    }
+
+    if (password !== admin.password) {
+      return res.status(401).send({ message: 'Invalid username or password' });
+    }
+
+    res.send({ message: 'Login successful', isAdminLoggedIn: true });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/products/seed', async (req, res) => {
+  try {
+    const products = await Product.insertMany(data.products);
+    res.send({ products });
+  } catch (error) {
+    console.error('Error seeding products:', error);
+    res.status(500).send({ error: 'Failed to seed products' });
+  }
+});
+
+app.get('/api/products', async (req, res) => {
+  const { category } = req.query;
+  const products = await Product.find(category ? { category } : {});
+
+  // Convert image buffer to base64-encoded string
+  const productsWithBase64Image = products.map((product) => ({
+    ...product._doc,
+    image: product.image.toString('base64'),
+  }));
+
+  res.send(productsWithBase64Image);
+});
+
+app.post('/api/products', upload.single('image'), async (req, res) => {
+  const { name, desc, price, time, category } = req.body;
+  const { buffer } = req.file;
+
+  try {
+    const newProduct = new Product({
+      name,
+      desc,
+      image: buffer,
+      price,
+      time,
+      category,
+    });
+
+    const savedProduct = await newProduct.save();
+    res.send(savedProduct);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).send({ error: 'Failed to create product' });
+  }
+});
+
+
+app.put('/api/products/:id', upload.single('image'), async (req, res) => {
+  const { id } = req.params;
+  const { name, price, desc, time, category } = req.body;
+
+  try {
+    let updatedProductData = {
+      name,
+      desc,
+      price,
+      time,
+      category,
+    };
+
+    if (req.file) {
+      const { buffer } = req.file;
+      updatedProductData.image = buffer;
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updatedProductData, { new: true });
+
+    if (updatedProduct) {
+      res.send(updatedProduct);
+    } else {
+      res.status(404).send({ message: 'Product not found' });
+    }
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).send({ error: 'Failed to update product' });
+  }
+});
+
+const Order = mongoose.model(
+  'Order',
+  new mongoose.Schema(
+    {
+      number: { type: Number, default: 0 },
+      orderType: String,
+      paymentType: String,
+      tableno: String,
+      isPaid: { type: Boolean, default: false },
+      isReady: { type: Boolean, default: false },
+      inProgress: { type: Boolean, default: false },
+      isCanceled: { type: Boolean, default: false },
+      isServed: { type: Boolean, default: false },
+      isDelivered: { type: Boolean, default: false },
+      itemsPrice: Number,
+      taxPrice: Number,
+      totalPrice: Number,
+      orderItems: [
+        {
+          name: String,
+          price: Number,
+          quantity: Number,
+        },
+      ],
+    },
+    {
+      timestamps: true,
+    }
+  )
+);
+
+app.get('/api/orders', async (req, res) => {
+  const orders = await Order.find({ isDelivered: false, isCanceled: false });
+  res.send(orders);
+});
+
+app.get('/api/all-orders', async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.send(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).send({ error: 'Failed to fetch orders' });
+  }
+});
+
+app.put('/api/orders/:id', async (req, res) => {
+  const { id } = req.params;
+  const { isServed, isDelivered, isPaid } = req.body;
+
+  try {
+    const order = await Order.findById(id);
+    if (order) {
+      if (isServed !== undefined) {
+        order.isServed = isServed;
+      }
+      if (isDelivered !== undefined) {
+        order.isDelivered = isDelivered;
+      }
+      if (isPaid && (isServed !== undefined || isDelivered !== undefined)) {
+        
+        return res.redirect('/complete');
+      }
+
+      await order.save();
+
+      res.send({ message: 'Order updated successfully' });
+    } else {
+      res.status(404).send({ message: 'Order not found' });
+    }
+  } catch (error) {
+    console.error('Error updating order:', error);
+    res.status(500).send({ error: 'Failed to update order' });
+  }
+});
+
+
+
+app.post('/api/orders', async (req, res) => {
+  const lastOrder = await Order.find().sort({ number: -1 }).limit(1);
+  const lastNumber = lastOrder.length === 0 ? 0 : lastOrder[0].number;
+
+  if (
+    !req.body.orderType ||
+    !req.body.paymentType ||
+    !req.body.orderItems ||
+    req.body.orderItems.length === 0
+  ) {
+    return res.send({ message: 'Data is required' });
+  }
+
+  const { orderType, paymentType, tableno, orderItems } = req.body;
+
+  const itemsPrice = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const taxPrice = 0.05 * itemsPrice;
+  const totalPrice = itemsPrice + taxPrice;
+
+  const order = await Order({
+    number: lastNumber + 1,
+    orderType,
+    paymentType,
+    tableno, 
+    isPaid: false,
+    isReady: false,
+    inProgress: false,
+    isCanceled: false,
+    isServed: false,
+    isDelivered: false,
+    itemsPrice,
+    taxPrice,
+    totalPrice,
+    orderItems,
+  }).save();
+
+  res.send(order);
+});
+
+
+// Create an instance of Razorpay
+const razorpay = new Razorpay({
+  key_id: 'rzp_test_l7BK8gNVAXOMxw',
+  key_secret: 'dZTEB9B0Tp99SUMr39EVSmGm',
+});
+
+// Endpoint to initiate the payment using Razorpay
+app.post('/api/initiate-payment', async (req, res) => {
+  const amount = req.body.amount;
+
+  const options = {
+    amount: amount * 100,
+    currency: 'INR',
+    receipt: 'receipt_1', 
+    payment_capture: 1, 
+  };
+
+  try {
+    // Create the Razorpay order
+    razorpay.orders.create(options, (err, order) => {
+      if (err) {
+        console.error('Error creating order:', err);
+        return res.status(500).send({ error: 'Payment initiation failed' });
+      }
+
+      // Send the order ID (order.id) to the frontend
+      res.send({ orderId: order.id });
+    });
+  } catch (error) {
+    console.error('Error initiating payment:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
+
+app.post('/api/capture-payment', async (req, res) => {
+  const { paymentId, orderId, signature } = req.body;
+
+  // Razorpay secret key
+  const key_secret = 'dZTEB9B0Tp99SUMr39EVSmGm';
+
+  try {
+    // Create the expected signature using the secret key and other data
+    const expectedSignature = crypto
+      .createHmac('sha256', key_secret)
+      .update(orderId + '|' + paymentId)
+      .digest('hex');
+
+    // Compare the expected signature with the received signature
+    if (expectedSignature !== signature) {
+      console.error('Payment signature mismatch');
+      return res.status(500).send({ error: 'Payment verification failed' });
+    }
+
+    // Payment verification successful
+    res.send({ success: true });
+  } catch (error) {
+    console.error('Error capturing payment:', error);
+    res.json({ success: false });
+  }
+});
+
+const port = process.env.PORT || 5000;
+
+const server = app.listen(port, () => {
+  console.log(`Server running at Port ${port}`);
+});
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (socket) => {
+  console.log('WebSocket connection established');
+  socket.send('WebSocket connection established');
+  socket.on('message', (message) => {
+    console.log('Received message:', message);
+  });
+  socket.on('close', () => {
+    console.log('WebSocket connection closed');
+  });
+});
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+app.js
+
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
+import './App.css';
+import ChooseScreen from './screens/ChooseScreen';
+import HomeScreen from './screens/HomeScreen'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import OrderScreen from './screens/OrderScreen';
+import ReviewScreen from './screens/ReviewScreen';
+import SelectPaymentScreen from './screens/SelectPaymentScreen';
+import CompleteOrderScreen from './screens/CompleteOrderScreen';
+import KitchenScreen from './screens/KitchenScreen';
+import AdminScreen from './screens/AdminScreen';
+import OrderDetailsPage from './screens/newkitch';
+import PaymentForm from './screens/PaymentScreen';
+import PaymentScreen from './screens/PaymentScreen';
+
+const theme = createTheme({
+  typography: {
+    h1: { fontWeight: 'bold' },
+    h2: {
+      fontSize: '2rem',
+      color: 'black',
+    },
+    h3: {
+      fontSize: '1.8rem',
+      fontWeight: 'bold',
+      color: 'white',
+    },
+  },
+  palette: {
+    Primary: { main: '#ff1744' },
+    Secondary: {
+      main: '#118e16',
+      contrastText: '#ffffff',
+    },
+  },
+});
+
+function App() {
+
+  const tableno = 3; 
+
+  return (
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <>
+          <Routes>
+            {/* Pass the tableno as a query parameter to ChooseScreen */}
+            <Route path='/' element={<HomeScreen tableno={tableno} />} />
+            <Route path='/admin' element={<AdminScreen />} />
+            <Route path='/choose' element={<ChooseScreen tableno={tableno} />} />
+            <Route path='/order' element={<OrderScreen tableno={tableno} />} />
+            <Route path='/review' element={<ReviewScreen />} />
+            <Route path='/select-payment' element={<SelectPaymentScreen />} />
+            <Route path='/complete' element={<CompleteOrderScreen />} />
+            <Route path='/payment' element={<PaymentScreen />} />
+            <Route path='/kitchen' element={<OrderDetailsPage />} />
+          </Routes>
+        </>
+      </ThemeProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;

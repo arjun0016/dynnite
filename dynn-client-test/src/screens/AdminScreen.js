@@ -530,6 +530,8 @@ function FoodsSection() {
     }
   };
 
+  
+
   const handleCancel = () => {
     closeModal();
     resetFormFields();

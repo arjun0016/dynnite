@@ -130,6 +130,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
   }
 });
 
+
 app.put('/api/products/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const { name, price, desc, time, category } = req.body;
@@ -243,6 +244,7 @@ app.put('/api/orders/:id', async (req, res) => {
   }
 });
 
+
 app.post('/api/orders', async (req, res) => {
   const lastOrder = await Order.find().sort({ number: -1 }).limit(1);
   const lastNumber = lastOrder.length === 0 ? 0 : lastOrder[0].number;
@@ -322,6 +324,7 @@ app.post('/api/initiate-payment', async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 });
+
 
 app.post('/api/capture-payment', async (req, res) => {
   const { paymentId, orderId, signature } = req.body;

@@ -1,14 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import '../components/admin.css';
-import axios from 'axios';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Button, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Modal, TextField } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "../components/admin.css";
+import axios from "axios";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableContainer,
+  Modal,
+  TextField,
+} from "@mui/material";
 
 export default function AdminScreen() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
 
@@ -16,52 +34,65 @@ export default function AdminScreen() {
     e.preventDefault();
 
     try {
-      
-
-      const response = await axios.post('http://localhost:5000/api/admin/login', {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/admin/login",
+        {
+          username,
+          password,
+        }
+      );
       console.log(response);
-
       if (response.data.isAdminLoggedIn) {
         setIsLoggedIn(true);
-      } else {
+      localStorage.setItem('isLoggedIn', 'true');
 
-        alert('Invalid username or password');
+      } else {
+        alert("Invalid username or password");
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      alert('An error occurred during login');
+      console.error("Error during login:", error);
+      alert("An error occurred during login");
     }
   };
 
+  useEffect(() => {
+    // Check if the user is logged in on page load
+    const loggedIn = localStorage.getItem('isLoggedIn');
+    if (loggedIn === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setUsername('');
-    setPassword('');
+    setUsername("");
+    setPassword("");
     setSelectedSection(null);
+    localStorage.removeItem('isLoggedIn');
+
   };
 
   const handleSectionClick = (section) => {
     setActiveSection(section);
-    if (section === 'dashboard') {
+    if (section === "dashboard") {
       setSelectedSection(null);
     } else {
       setSelectedSection(section);
     }
   };
 
-  const [activeSection, setActiveSection] = useState('');
-
-
+  const [activeSection, setActiveSection] = useState("");
 
   if (isLoggedIn) {
     return (
       <div>
         <nav className="navbar-admin">
           <div className="navbar-admin-left">
-            <img src='/images/dynnite_text.png' alt='err' className="admin-head" />
+            <img
+              src="/images/dynnite_text.png"
+              alt="err"
+              className="admin-head"
+            />
           </div>
           <div className="navbar-admin-right">
             <button className="btn-logout" onClick={handleLogout}>
@@ -71,17 +102,37 @@ export default function AdminScreen() {
         </nav>
         <div className="dashboard-container">
           <div className="sidebar">
-            <div className='dash-options'>
-              <p className={activeSection === 'dashboard' ? 'active' : ''} onClick={() => handleSectionClick('dashboard')}><i class="fa-solid fa-chart-line"></i>Dashboard</p>
-              <p className={activeSection === 'orders' ? 'active' : ''} onClick={() => handleSectionClick('orders')}><i class="fa-solid fa-check-double"></i>Current Orders</p>
-              <p className={activeSection === 'previousOrders' ? 'active' : ''} onClick={() => handleSectionClick('previousOrders')}><i class="fa-solid fa-calendar-check"></i>Previous Orders</p>
-              <p className={activeSection === 'foods' ? 'active' : ''} onClick={() => handleSectionClick('foods')}><i class="fa-solid fa-champagne-glasses"></i>Food Section</p>
+            <div className="dash-options">
+              <p
+                className={activeSection === "dashboard" ? "active" : ""}
+                onClick={() => handleSectionClick("dashboard")}
+              >
+                <i class="fa-solid fa-chart-line"></i>Dashboard
+              </p>
+              <p
+                className={activeSection === "orders" ? "active" : ""}
+                onClick={() => handleSectionClick("orders")}
+              >
+                <i class="fa-solid fa-check-double"></i>Current Orders
+              </p>
+              <p
+                className={activeSection === "previousOrders" ? "active" : ""}
+                onClick={() => handleSectionClick("previousOrders")}
+              >
+                <i class="fa-solid fa-calendar-check"></i>Previous Orders
+              </p>
+              <p
+                className={activeSection === "foods" ? "active" : ""}
+                onClick={() => handleSectionClick("foods")}
+              >
+                <i class="fa-solid fa-champagne-glasses"></i>Food Section
+              </p>
             </div>
           </div>
           <div className="main-content">
-            {selectedSection === 'orders' && <OrdersSection />}
-            {selectedSection === 'previousOrders' && <PreviousOrdersSection />}
-            {selectedSection === 'foods' && <FoodsSection />}
+            {selectedSection === "orders" && <OrdersSection />}
+            {selectedSection === "previousOrders" && <PreviousOrdersSection />}
+            {selectedSection === "foods" && <FoodsSection />}
             {selectedSection === null && <WelcomeMessage />}
           </div>
         </div>
@@ -91,9 +142,9 @@ export default function AdminScreen() {
 
   return (
     <div className="login-container">
-      <form className='form-container' onSubmit={handleLogin}>
-        <p className='welcome_back'>Login to Access</p>
-        <p className='enter_details'>Welcome back! Please enter your details</p>
+      <form className="form-container" onSubmit={handleLogin}>
+        <p className="welcome_back">Login to Access</p>
+        <p className="enter_details">Welcome back! Please enter your details</p>
         <label>
           Username <br />
           <input
@@ -116,8 +167,8 @@ export default function AdminScreen() {
           Login
         </button>
       </form>
-      <div className='login-img-container'>
-        <img className='login-img' src='/images/login_img.svg' alt='' />
+      <div className="login-img-container">
+        <img className="login-img" src="/images/login_img.svg" alt="" />
       </div>
     </div>
   );
@@ -134,7 +185,7 @@ function WelcomeMessage() {
 
   const fetchOrderData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/all-orders');
+      const response = await axios.get("http://localhost:5000/api/all-orders");
       const orderData = response.data;
 
       // Calculate the total number of orders
@@ -160,25 +211,30 @@ function WelcomeMessage() {
       }));
       setOrderChartData(chartData);
     } catch (error) {
-      console.error('Error fetching order data:', error);
+      console.error("Error fetching order data:", error);
     }
   };
 
   return (
     <div>
       <h2>Welcome to Admin Screen!</h2>
-      <div className='admin-box'>
-        <p className='total-order-box'>Total Orders: {totalOrders}</p>
-        <p className='today-order-box'>Today's Orders: {todaysOrders}</p>
+      <div className="admin-box">
+        <p className="total-order-box">Total Orders: {totalOrders}</p>
+        <p className="today-order-box">Today's Orders: {todaysOrders}</p>
       </div>
-      <div className='chart-container'>
+      <div className="chart-container">
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={orderChartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="count" stroke="#8884d8" fill="#8884d8" />
+            <Line
+              type="monotone"
+              dataKey="count"
+              stroke="#8884d8"
+              fill="#8884d8"
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -203,15 +259,18 @@ function OrdersSection() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/orders');
+      const response = await axios.get("http://localhost:5000/api/orders");
       setOrders(response.data);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
     }
   };
 
   const calculateSubtotal = (order) => {
-    return order.orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return order.orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
   };
 
   useEffect(() => {
@@ -226,10 +285,10 @@ function OrdersSection() {
         return updatedOrders;
       });
     };
-    
+
     const subscribeToOrderStatusUpdates = () => {
       // Establish a WebSocket connection for real-time updates
-      const socket = new WebSocket('ws://localhost:8000/api/orders');
+      const socket = new WebSocket("ws://localhost:8000/api/orders");
 
       socket.onmessage = (event) => {
         const updatedOrder = JSON.parse(event.data);
@@ -247,7 +306,7 @@ function OrdersSection() {
 
   const setOrderStateHandler = async (orderId, action) => {
     try {
-      if (action === 'deliver') {
+      if (action === "deliver") {
         await axios.put(`http://localhost:5000/api/orders/${orderId}`, {
           isDelivered: true,
         });
@@ -260,11 +319,11 @@ function OrdersSection() {
           return o;
         });
         setOrders(updatedOrders);
-      } else if (action === 'cancel') {
+      } else if (action === "cancel") {
         // Implement cancel functionality if needed
       }
     } catch (err) {
-      console.error('Error updating order state:', err);
+      console.error("Error updating order state:", err);
       alert(err.message);
     }
   };
@@ -292,28 +351,37 @@ function OrdersSection() {
               <TableCell>{order.number}</TableCell>
               <TableCell>
                 {order.orderItems.map((item) => (
-                  <span key={item._id}>{item.name}<br /></span>
+                  <span key={item._id}>
+                    {item.name}
+                    <br />
+                  </span>
                 ))}
               </TableCell>
               <TableCell>{order.paymentType}</TableCell>
               <TableCell>
                 {order.orderItems.map((item) => (
-                  <span key={item._id}>{item.quantity}<br /></span>
+                  <span key={item._id}>
+                    {item.quantity}
+                    <br />
+                  </span>
                 ))}
               </TableCell>
               <TableCell>
                 {order.orderItems.map((item) => (
-                  <span key={item._id}>{item.price * item.quantity}<br /></span>
+                  <span key={item._id}>
+                    {item.price * item.quantity}
+                    <br />
+                  </span>
                 ))}
               </TableCell>
               <TableCell>{calculateSubtotal(order)}</TableCell>
               <TableCell>{order.totalPrice}</TableCell>
-              <TableCell>{order.isServed ? 'Yes' : 'No'}</TableCell>
+              <TableCell>{order.isServed ? "Yes" : "No"}</TableCell>
               <TableCell>
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => setOrderStateHandler(order._id, 'deliver')}
+                  onClick={() => setOrderStateHandler(order._id, "deliver")}
                   disabled={!order.isServed}
                 >
                   Deliver
@@ -347,7 +415,9 @@ function PreviousOrdersSection() {
   useEffect(() => {
     if (selectedDate) {
       const filtered = previousOrders.filter(
-        (order) => new Date(order.createdAt).toDateString() === selectedDate.toDateString()
+        (order) =>
+          new Date(order.createdAt).toDateString() ===
+          selectedDate.toDateString()
       );
       setFilteredOrders(filtered);
     } else {
@@ -357,10 +427,10 @@ function PreviousOrdersSection() {
 
   const fetchPreviousOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/all-orders');
+      const response = await axios.get("http://localhost:5000/api/all-orders");
       setPreviousOrders(response.data);
     } catch (error) {
-      console.error('Error fetching previous orders:', error);
+      console.error("Error fetching previous orders:", error);
     }
   };
 
@@ -396,7 +466,7 @@ function PreviousOrdersSection() {
           selected={selectedDate}
           onChange={handleDateChange}
           className="date-picker-input"
-          placeholderText='Select Date'
+          placeholderText="Select Date"
         />
       </div>
       <div className="order-buttons">
@@ -420,16 +490,24 @@ function PreviousOrdersSection() {
                 <TableCell>{order.number}</TableCell>
                 <TableCell>
                   {order.orderItems.map((item) => (
-                    <span key={item._id}>{item.name}<br /></span>
+                    <span key={item._id}>
+                      {item.name}
+                      <br />
+                    </span>
                   ))}
                 </TableCell>
                 <TableCell>
                   {order.orderItems.map((item) => (
-                    <span key={item._id}>{item.price * item.quantity}<br /></span>
+                    <span key={item._id}>
+                      {item.price * item.quantity}
+                      <br />
+                    </span>
                   ))}
                 </TableCell>
                 <TableCell>{calculateSubtotal(order)}</TableCell>
-                <TableCell>{new Date(order.createdAt).toLocaleString()}</TableCell>
+                <TableCell>
+                  {new Date(order.createdAt).toLocaleString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -442,11 +520,11 @@ function PreviousOrdersSection() {
 function FoodsSection() {
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [desc, setDesc] = useState('');
-  const [price, setPrice] = useState('');
-  const [time, setTime] = useState('');
-  const [category, setCategory] = useState('');
+  const [name, setName] = useState("");
+  const [desc, setDesc] = useState("");
+  const [price, setPrice] = useState("");
+  const [time, setTime] = useState("");
+  const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -456,10 +534,10 @@ function FoodsSection() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get("http://localhost:5000/api/products");
       setProducts(response.data);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     }
   };
 
@@ -483,16 +561,16 @@ function FoodsSection() {
   const handleSaveProduct = async () => {
     try {
       const formData = new FormData();
-      formData.append('name', name);
-      formData.append('desc', desc);
-      formData.append('price', price);
-      formData.append('time', time);
-      formData.append('category', category);
-      formData.append('image', image);
+      formData.append("name", name);
+      formData.append("desc", desc);
+      formData.append("price", price);
+      formData.append("time", time);
+      formData.append("category", category);
+      formData.append("image", image);
 
-      await axios.post('http://localhost:5000/api/products', formData, {
+      await axios.post("http://localhost:5000/api/products", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -500,7 +578,7 @@ function FoodsSection() {
       resetFormFields();
       fetchProducts();
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error("Error adding product:", error);
       // Handle the error
     }
   };
@@ -508,33 +586,48 @@ function FoodsSection() {
   const handleUpdateProduct = async () => {
     try {
       const formData = new FormData();
-      formData.append('name', name);
-      formData.append('desc', desc);
-      formData.append('price', price);
-      formData.append('time', time);
-      formData.append('category', category);
-      formData.append('image', image);
+      formData.append("name", name);
+      formData.append("desc", desc);
+      formData.append("price", price);
+      formData.append("time", time);
+      formData.append("category", category);
+      formData.append("image", image);
 
-      await axios.put(`http://localhost:5000/api/products/${selectedProduct._id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await axios.put(
+        `http://localhost:5000/api/products/${selectedProduct._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type":"multipart/form-data",
+          },
+        }
+      );
 
       closeModal();
       resetFormFields();
       fetchProducts();
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error("Error updating product:", error);
       // Handle the error
     }
   };
 
-  
-
   const handleCancel = () => {
     closeModal();
     resetFormFields();
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      const product = await axios.delete(
+        `http://localhost:5000/api/products/${productId}`
+      );
+      alert("delete")
+      window.location.reload();
+      console.log(product);
+    } catch (error) {
+      console.log("error on deleting");
+    }
   };
 
   const closeModal = () => {
@@ -543,11 +636,11 @@ function FoodsSection() {
   };
 
   const resetFormFields = () => {
-    setName('');
-    setDesc('');
-    setPrice('');
-    setTime('');
-    setCategory('');
+    setName("");
+    setDesc("");
+    setPrice("");
+    setTime("");
+    setCategory("");
     setImage(null);
   };
 
@@ -576,17 +669,22 @@ function FoodsSection() {
                 <TableCell>{product.time}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleEditProduct(product)}>Edit</Button>
+                  <Button onClick={() => handleEditProduct(product)}>
+                    Edit
+                  </Button>
+                  <Button className="del-button" onClick={() => handleDeleteProduct(product._id)}>
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-      <Modal className='modal' open={isModalOpen} onClose={handleCancel}>
+      <Modal className="modal" open={isModalOpen} onClose={handleCancel}>
         <div className="modal-content">
           <div className="modal-header">
-            <h3>{selectedProduct ? 'Edit Product' : 'Add Product'}</h3>
+            <h3>{selectedProduct ? "Edit Product" : "Add Product"}</h3>
           </div>
           <div className="modal-input">
             <TextField
@@ -636,7 +734,7 @@ function FoodsSection() {
             ) : (
               <Button onClick={handleSaveProduct}>Save</Button>
             )}
-            <Button onClick={handleCancel}>Cancel</Button>
+            <Button  onClick={handleCancel}>Cancel</Button>
           </div>
         </div>
       </Modal>

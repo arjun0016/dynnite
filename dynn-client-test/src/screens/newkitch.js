@@ -35,7 +35,7 @@ export default function KitchenScreen() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('${process.env.REACT_APP_BASEURL}/api/orders');
+      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/orders`);
       setOrders(response.data);
       setLoading(false);
     } catch (error) {

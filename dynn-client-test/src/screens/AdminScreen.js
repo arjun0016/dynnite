@@ -290,7 +290,7 @@ function OrdersSection() {
 
     const subscribeToOrderStatusUpdates = () => {
       // Establish a WebSocket connection for real-time updates
-      const socket = new WebSocket("ws://localhost:8000/api/orders");
+      const socket = new WebSocket(`${process.env.REACT_APP_BASEURL}/api/orders`);
 
       socket.onmessage = (event) => {
         const updatedOrder = JSON.parse(event.data);

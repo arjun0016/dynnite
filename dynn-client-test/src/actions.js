@@ -45,7 +45,7 @@ export const listCategories = async (dispatch) => {
 export const listProducts = async (dispatch, categoryName = '') => {
   dispatch({ type: PRODUCT_LIST_REQUEST });
   try {
-    const { data } = await axios.get(`${process.env.REACT_APP_BASEURL}/api/products?category=Shawaya`);
+    const { data } = await axios.get(`${process.env.REACT_APP_BASEURL}/api/products?category=${categoryName}`);
     return dispatch({
       type: PRODUCT_LIST_SUCCESS,
       payload: data,

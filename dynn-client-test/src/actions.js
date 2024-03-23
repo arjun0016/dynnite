@@ -29,7 +29,7 @@ export const setOrderType = (dispatch, orderType) => {
 export const listCategories = async (dispatch) => {
   dispatch({ type: CATEGORY_LIST_REQUEST });
   try {
-    const { data } = await axios.get("http://localhost:5000/api/categories");
+    const { data } = await axios.get("${process.env.REACT_APP_BASEURL}/api/categories");
     return dispatch({
       type: CATEGORY_LIST_SUCCESS,
       payload: data,
@@ -45,7 +45,7 @@ export const listCategories = async (dispatch) => {
 export const listProducts = async (dispatch, categoryName = '') => {
   dispatch({ type: PRODUCT_LIST_REQUEST });
   try {
-    const { data } = await axios.get(`http://localhost:5000/api/products?category=${categoryName}`);
+    const { data } = await axios.get(`${process.env.REACT_APP_BASEURL}/api/products?category=${categoryName}`);
     return dispatch({
       type: PRODUCT_LIST_SUCCESS,
       payload: data,
@@ -88,7 +88,7 @@ export const setPaymentType = (dispatch, paymentType) => {
 export const createOrder = async (dispatch, order) => {
   dispatch({ type: ORDER_CREATE_REQUEST });
   try {
-    const { data } = await axios.post('http://localhost:5000/api/orders', order);
+    const { data } = await axios.post('${process.env.REACT_APP_BASEURL}/api/orders', order);
     dispatch({
       type: ORDER_CREATE_SUCCESS,
       payload: data,
@@ -107,7 +107,7 @@ export const createOrder = async (dispatch, order) => {
 export const listOrders = async (dispatch) => {
   dispatch({ type: ORDER_LIST_REQUEST });
   try {
-    const { data } = await axios.get(`http://localhost:5000/api/orders`);
+    const { data } = await axios.get(`${process.env.REACT_APP_BASEURL}/api/orders`);
     return dispatch({
       type: ORDER_LIST_SUCCESS,
       payload: data,

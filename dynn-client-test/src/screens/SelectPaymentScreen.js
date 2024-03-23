@@ -17,7 +17,7 @@ export default function SelectPaymentScreen() {
     const amount = parseInt(priceToBePaid, 10);
   
     try {
-      const response = await fetch('http://localhost:5000/api/initiate-payment', {
+      const response = await fetch('${process.env.REACT_APP_BASEURL}/api/initiate-payment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export default function SelectPaymentScreen() {
 
   const capturePayment = async (paymentId, orderId, signature) => {
     try {
-      const response = await fetch('http://localhost:5000/api/capture-payment', {
+      const response = await fetch('${process.env.REACT_APP_BASEURL}/api/capture-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

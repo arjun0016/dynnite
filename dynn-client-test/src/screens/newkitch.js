@@ -35,7 +35,7 @@ export default function KitchenScreen() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/orders');
+      const response = await axios.get('${process.env.REACT_APP_BASEURL}/api/orders');
       setOrders(response.data);
       setLoading(false);
     } catch (error) {
@@ -52,7 +52,7 @@ export default function KitchenScreen() {
         updatedField = 'isServed';
       }
 
-      await axios.put(`http://localhost:5000/api/orders/${orderId}`, {
+      await axios.put(`${process.env.REACT_APP_BASEURL}/api/orders/${orderId}`, {
         [updatedField]: true,
       });
     } catch (err) {

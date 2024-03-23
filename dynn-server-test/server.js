@@ -58,6 +58,8 @@ const Product = mongoose.model(
   })
 );
 
+
+
 app.post("/api/admin/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -348,6 +350,8 @@ app.post("/api/initiate-payment", async (req, res) => {
     res.status(500).send({ error: "Internal server error" });
   }
 });
+
+
 
 app.post("/api/capture-payment", async (req, res) => {
   const { paymentId, orderId, signature } = req.body;

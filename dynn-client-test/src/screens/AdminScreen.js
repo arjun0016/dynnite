@@ -30,12 +30,14 @@ export default function AdminScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
 
+  console.log("baseurl",process.env.REACT_APP_BASEURL)
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/admin/login",
+        `${process.env.REACT_APP_BASEURL}/api/admin/login`,
         {
           username,
           password,
@@ -185,7 +187,7 @@ function WelcomeMessage() {
 
   const fetchOrderData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/all-orders");
+      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/all-orders`);
       const orderData = response.data;
 
       // Calculate the total number of orders
@@ -259,7 +261,7 @@ function OrdersSection() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/orders");
+      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/orders`);
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -307,7 +309,7 @@ function OrdersSection() {
   const setOrderStateHandler = async (orderId, action) => {
     try {
       if (action === "deliver") {
-        await axios.put(`http://localhost:5000/api/orders/${orderId}`, {
+        await axios.put(`${process.env.REACT_APP_BASEURL}/api/orders/${orderId}`, {
           isDelivered: true,
         });
 
@@ -427,7 +429,7 @@ function PreviousOrdersSection() {
 
   const fetchPreviousOrders = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/all-orders");
+      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/all-orders`);
       setPreviousOrders(response.data);
     } catch (error) {
       console.error("Error fetching previous orders:", error);
@@ -534,7 +536,7 @@ function FoodsSection() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/products");
+      const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/products`);
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -568,7 +570,7 @@ function FoodsSection() {
       formData.append("category", category);
       formData.append("image", image);
 
-      await axios.post("http://localhost:5000/api/products", formData, {
+      await axios.post(`${process.env.REACT_APP_BASEURL}/api/products`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -594,7 +596,7 @@ function FoodsSection() {
       formData.append("image", image);
 
       await axios.put(
-        `http://localhost:5000/api/products/${selectedProduct._id}`,
+        `${process.env.REACT_APP_BASEURL}/api/products/${selectedProduct._id}`,
         formData,
         {
           headers: {
@@ -620,7 +622,7 @@ function FoodsSection() {
   const handleDeleteProduct = async (productId) => {
     try {
       const product = await axios.delete(
-        `http://localhost:5000/api/products/${productId}`
+        `${process.env.REACT_APP_BASEURL}/api/products/${productId}`
       );
       alert("delete")
       window.location.reload();

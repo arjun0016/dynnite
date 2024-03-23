@@ -23,7 +23,7 @@ export default function KitchenScreen() {
 
     const setOrderStateHandler = async (order, action) => {
         try{
-           await axios.put('http://localhost:5000/api/orders/' + order._id, {
+           await axios.put('${process.env.REACT_APP_BASEURL}/api/orders/' + order._id, {
             action: action,
            });
            listOrders(dispatch);   

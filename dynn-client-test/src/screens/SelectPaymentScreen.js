@@ -53,7 +53,7 @@ export default function SelectPaymentScreen() {
 
   const capturePayment = async (paymentId, orderId, signature) => {
     try {
-      const response = await fetch('${process.env.REACT_APP_BASEURL}/api/capture-payment', {
+      const response = await fetch(`${process.env.REACT_APP_BASEURL}/api/capture-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

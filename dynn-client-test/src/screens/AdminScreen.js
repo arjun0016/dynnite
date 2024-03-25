@@ -246,6 +246,7 @@ function WelcomeMessage() {
 
 function OrdersSection() {
   const [orders, setOrders] = useState([]);
+  
 
   useEffect(() => {
     fetchOrders();
@@ -290,7 +291,7 @@ function OrdersSection() {
 
     const subscribeToOrderStatusUpdates = () => {
       // Establish a WebSocket connection for real-time updates
-      const socket = new WebSocket(process.env.SOCKET_URL);
+      const socket = new WebSocket("ws://localhost:8000/api/orders");
 
       console.log(process.env.SOCKET_URL)
 

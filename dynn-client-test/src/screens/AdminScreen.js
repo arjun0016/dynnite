@@ -111,6 +111,14 @@ export default function AdminScreen() {
               >
                 <i class="fa-solid fa-chart-line"></i>Dashboard
               </p>
+
+              <p
+                className={activeSection === "foods" ? "active" : ""}
+                onClick={() => handleSectionClick("foods")}
+              >
+                <i class="fa-solid fa-champagne-glasses"></i>Food Section
+              </p>
+
               <p
                 className={activeSection === "orders" ? "active" : ""}
                 onClick={() => handleSectionClick("orders")}
@@ -123,12 +131,7 @@ export default function AdminScreen() {
               >
                 <i class="fa-solid fa-calendar-check"></i>Previous Orders
               </p>
-              <p
-                className={activeSection === "foods" ? "active" : ""}
-                onClick={() => handleSectionClick("foods")}
-              >
-                <i class="fa-solid fa-champagne-glasses"></i>Food Section
-              </p>
+           
             </div>
           </div>
           <div className="main-content">

@@ -98,7 +98,6 @@ app.get("/api/products/seed", async (req, res) => {
 app.get("/api/products", async (req, res) => {
   const { category } = req.query;
   const products = await Product.find(category ? { category } : {});
-
   // Convert image buffer to base64-encoded string
   const productsWithBase64Image = products.map((product) => ({
     ...product._doc,

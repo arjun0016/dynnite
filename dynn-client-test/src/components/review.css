@@ -46,7 +46,12 @@
   flex-wrap: wrap;
   gap: 50px;
 }
-
+.product-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 .card {
   width: 500px;
 }
@@ -68,13 +73,15 @@
 
 .review-flex{
   display: flex;
-  justify-content: space-around;
+  justify-content:center;
+  gap: 20px;
   width: 300px;
 }
 
 .checkout-img{
   width: 150px;
   height: 100px;
+  object-fit: cover;
   border-radius: 20px;
 }
 
@@ -102,8 +109,8 @@
 
 .summary_box {
   position: absolute;
+  top: 150px;
   right: 15px;
-  top: 100px;
   color: black;
   width: 400px;
   height: auto;
@@ -148,6 +155,7 @@
 .xyz{
   display: flex;
   justify-content: space-between;
+  padding-inline: 50px;
   width: 700px;
 }
 
@@ -159,7 +167,7 @@
   width: 30px; 
   height: 30px;
   border: solid rgb(76, 74, 74) 1px;
-  border-radius: 60%;
+  border-radius: 50%;
   font-size: 22px; 
 }
 
@@ -238,6 +246,9 @@
   .xyz{
     width: 550px;
   }
+  .add_dec_btn{
+    margin-block-start: 10px;
+  }
 }
 
 @media (max-width: 700px){
@@ -301,21 +312,21 @@
 @media (max-width: 470px){
   .card_left{
     width: 400px;
-    margin-left: 30px;
+    margin-left: 0px;
   }
 
   .input-parent{
-    width: 350px;
+    width: 300px;
   }
 
   .summary_box{
-    margin-left: 50px;
+    margin-left: 0px;
   }
 }
 
 @media (max-width: 450px){
   .checkout-box{
-    width: 400px;
+    width: 450px;
   }
 
   .card_left{
@@ -338,6 +349,7 @@
 
   .input-parent{
     width: 320px;
+   padding-inline: 40px;
   }
 
   .summary_box{
@@ -346,8 +358,9 @@
 
   .xyz{
     width: 320px;
-  }
+  padding-inline: 0px;
 
+  }
   .proceed_back_btn{
     width: 120px;
   }

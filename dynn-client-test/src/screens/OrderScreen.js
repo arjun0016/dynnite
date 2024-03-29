@@ -17,7 +17,7 @@ import { Store } from './Store';
 import '../components/order.css';
 import { useNavigate, useLocation  } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faHourglass1, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 function OrderScreen() {
   const styles = useStyles();

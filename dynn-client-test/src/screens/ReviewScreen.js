@@ -78,6 +78,20 @@ export default function ReviewScreen() {
   }, [total]);
 
   useEffect(() => {
+    // Retrieve cart data from local storage
+    const storedQuantity = localStorage.getItem('cartQuantity');
+    if (storedQuantity) {
+      setQuantity(JSON.parse(storedQuantity));
+    }
+  }, []); // Run only once on component mount
+
+  useEffect(() => {
+    // Store cart data in local storage whenever quantity changes
+    localStorage.setItem('cartQuantity', JSON.stringify(quantity));
+  }, [quantity]);
+  
+
+  useEffect(() => {
 
     const searchParams = new URLSearchParams(location.search);
     const tableno = searchParams.get('tableno');

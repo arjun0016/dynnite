@@ -15,9 +15,10 @@ import AddIcon from '@mui/icons-material/Add';
 import { addToOrder, listProducts, removeFromOrder } from '../actions';
 import { Store } from './Store';
 import '../components/order.css';
-import { useNavigate, useLocation  } from 'react-router-dom';
+import { useNavigate, useLocation, Link  } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHourglass1, faSearch } from '@fortawesome/free-solid-svg-icons';
+
 
 function OrderScreen() {
   const styles = useStyles();
@@ -28,6 +29,7 @@ function OrderScreen() {
   const [isOpen, setIsOpen] = useState(false);
   const [product, setProduct] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [isWithinArea, setIsWithinArea] = useState(false);
   const closeHandler = () => {
     setIsOpen(false);
   };
@@ -42,9 +44,21 @@ function OrderScreen() {
     setIsOpen(false);
   };
 
+
   const addToCartHandler = (product) => {
-    addToOrder(dispatch, { ...product, quantity: 1 });
-    setIsOpen(false);
+    // Check if the user's geolocation allows adding to cart
+    if (isWithinArea) {
+      addToOrder(dispatch, { ...product, quantity: 1 });
+      setIsOpen(false);
+    } else {
+      // Display an alert or take other actions if user is not within the specified area
+      alert('You can only add to cart within the specified area.');
+    }
+  };
+  const addToDetailsPage = (productId) => {
+    navigate(`/detailspage?tableno=${tableno}&productId=${productId}`);
+      // addToOrder(dispatch, { ...product});
+
   };
 
   const cancelOrRemoveFromOrder = () => {
@@ -66,6 +80,27 @@ function OrderScreen() {
     : [];
 
     useEffect(() => {
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+            // Check if user is within the specified area (e.g., a certain radius from a predefined latitude and longitude)
+            const areaLatitude = 11.258124299332914; // New York City latitude
+            const areaLongitude = 75.79474778081867; // New York City longitude
+            const maxDistance =1; // Maximum distance in kilometers (adjust as needed)
+            const distance = calculateDistance(latitude, longitude, areaLatitude, areaLongitude);
+            setIsWithinArea(distance <= maxDistance);
+          },
+          (error) => {
+            console.error("Error getting geolocation:", error.message);
+          }
+        );
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      }
+
       listProducts(dispatch);
       // Check if the tableno parameter is present in the URL
       const searchParams = new URLSearchParams(location.search);
@@ -74,8 +109,29 @@ function OrderScreen() {
         // Store the tableno in the state
         setTableno(tableno);
       }
+
+      
     }, [dispatch, location.search]);
 
+     // Function to calculate the distance between two coordinates using the Haversine formula
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in kilometers
+    return distance;
+  };
+
+  const deg2rad = (deg) => {
+    return deg * (Math.PI / 180);
+  };
+
+    
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -142,6 +198,8 @@ function OrderScreen() {
             filteredProducts.map((product) => (
               <div className='card-container' item key={product._id} >
                 <div className="order_card" >
+
+                <Link key={product.name} to={`/detailspage/${product.name}?tableno=${tableno}`}>
                   <div className='card-clickable' onClick={() => productClickHandler(product)}>
                     {product.image && (
                       <img
@@ -151,6 +209,8 @@ function OrderScreen() {
                       />
                     )}
                   </div>
+                  </Link>
+
                   <div className='product-parent'>
                     <div>
                       <div className='product-details'>
@@ -164,6 +224,7 @@ function OrderScreen() {
                         </div>
                       </div>
                     </div>
+
                     <Box className="addButtonWrapper">
                       <Button
                         className="addButton"

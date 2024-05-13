@@ -13,7 +13,6 @@ export default function ReviewScreen() {
   const location = useLocation();
   const tableno = new URLSearchParams(location.search).get('tableno');
   const [totalValue, setTotalValue] = useState(0);
-
   const { state, dispatch } = useContext(Store);
   const {
     orderItems,
@@ -90,7 +89,6 @@ export default function ReviewScreen() {
     localStorage.setItem('cartQuantity', JSON.stringify(quantity));
   }, [quantity]);
   
-
   useEffect(() => {
 
     const searchParams = new URLSearchParams(location.search);

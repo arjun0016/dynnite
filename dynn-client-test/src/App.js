@@ -14,6 +14,7 @@ import OrderDetailsPage from './screens/newkitch';
 
 import PaymentScreen from './screens/PaymentScreen';
 import Failed from './screens/failed'
+import DetailsPage  from './screens/DetailsPage';
 
 const theme = createTheme({
   typography: {
@@ -57,6 +58,7 @@ function App() {
             <Route path='/payment' element={<PaymentScreen />} />
             <Route path='/kitchen' element={<OrderDetailsPage />} />
             <Route path='/failed' element={<Failed />} />
+            <Route path="/detailspage/:productName" element={<DetailsPage/>} />
           </Routes>
         </>
       </ThemeProvider>
